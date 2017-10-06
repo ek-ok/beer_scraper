@@ -6,6 +6,7 @@ import bs4
 
 root_url = 'http://www.ratebeer.com'
 
+
 def get_soup(url):
     """
     Get BeautifulSoup's soup object from an url
@@ -104,6 +105,7 @@ if __name__ == '__main__':
     #     db.brewer.insert(results)
 
     for idx, brewer_url in enumerate(brewer_urls):
-        print idx
+        print
+        idx
         results = get_brewer_info(brewer_url)
         db.brewer.insert(results)

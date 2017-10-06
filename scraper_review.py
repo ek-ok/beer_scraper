@@ -1,4 +1,3 @@
-
 """
 Scrape beer info and reviews from ratebeer.com
 
@@ -27,7 +26,6 @@ import pandas as pd
 from multiprocessing.pool import ThreadPool
 import pymongo
 
-
 root_url = 'http://www.ratebeer.com'
 
 
@@ -53,6 +51,7 @@ def is_valid_beer_id(soup):
         return True
     else:
         False
+
 
 def get_beer_info(soup):
     """
@@ -168,14 +167,16 @@ def get_reviews(soup):
             id_tmp = int(user_id['href'].split('/')[2])
             user_ids.append(id_tmp)
 
-        for item in table.findAll('div', {'style': 'display:inline; padding: 0px 0px; font-size: 24px; font-weight: bold; color: #036;'}):
+        for item in table.findAll('div', {
+            'style': 'display:inline; padding: 0px 0px; font-size: 24px; font-weight: bold; color: #036;'}):
             bold_scores.append(item.get_text())
 
         # AROMA, APPEARANCE, TASTE, PALATE, OVERALL
         for item in table.findAll('big', {'style': 'color: #999;'}):
             detail_scores.append(item.getText().split(r'/')[0])
 
-        for review in table.findAll('div', {'style': 'padding: 20px 10px 20px 0px; border-bottom: 1px solid #e0e0e0; line-height: 1.5;'}):
+        for review in table.findAll('div', {
+            'style': 'padding: 20px 10px 20px 0px; border-bottom: 1px solid #e0e0e0; line-height: 1.5;'}):
             review_txts.append(review.get_text().strip())
 
     # Combine fields by reviews
@@ -188,7 +189,7 @@ def get_reviews(soup):
         review_tmp['review_date'] = review_dates[idx]
         review_tmp['in_rating'] = in_ratings[idx]
 
-        scores_tmp = {score_names[i]:score for i, score in enumerate(detail_scores_chunk.next())}
+        scores_tmp = {score_names[i]: score for i, score in enumerate(detail_scores_chunk.next())}
 
         review_tmp.update(scores_tmp)
         reviews.append(review_tmp)
@@ -237,12 +238,15 @@ def chunks(lst, chunk_size):
     for i in xrange(0, len(lst), chunk_size):
         yield lst[i:i + chunk_size]
 
+
 if __name__ == '__main__':
 
     # max beer_id = 319483
     beer_ids = [i for i in xrange(1200, 319483 + 1, 1050)]
-    print 'Number of beers: ', len(beer_ids)
-    print 'Scraping beers..'
+    print
+    'Number of beers: ', len(beer_ids)
+    print
+    'Scraping beers..'
 
     # instantiate pymongo amd ThreadPool classes
     client = pymongo.MongoClient("192.168.0.31", 27017)
@@ -257,6 +261,7 @@ if __name__ == '__main__':
 
     # Without multi threads
     for beer_id in beer_ids:
-        print beer_id
+        print
+        beer_id
         result = scrape(beer_id)
         db.beer_review.insert(result)

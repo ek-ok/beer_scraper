@@ -6,6 +6,7 @@ import pymongo
 
 root_url = r'http://www.ratebeer.com'
 
+
 def get_soup(url):
     """
     Get BeautifulSoup's soup object from an url
@@ -20,11 +21,13 @@ def get_soup(url):
 
     return bs4.BeautifulSoup(response)
 
+
 def is_bad_user_id(soup):
     if 'user not found' in soup.find('body').get_text():
         return True
     else:
         False
+
 
 def get_user_data(user_id):
     user_data = {}
@@ -53,8 +56,8 @@ def get_user_data(user_id):
         user_data['favorite_style'] = None
 
     # user name
-    table = soup.find('table', {'border':0, 'cellpadding':0, 'cellspacing':0, 'width': '100%'})
-    user_name = table.find('span',{'class': 'userIsDrinking'})
+    table = soup.find('table', {'border': 0, 'cellpadding': 0, 'cellspacing': 0, 'width': '100%'})
+    user_name = table.find('span', {'class': 'userIsDrinking'})
     if user_name:
         user_data['user_name'] = user_name.get_text()
 
@@ -82,19 +85,21 @@ if __name__ == '__main__':
     client = pymongo.MongoClient("192.168.0.31", 27017)
     db = client.beer
 
-    users = db.beer_review.aggregate([{'$unwind':"$reviews"},{'$group':{'_id':"$reviews.user_id"}}])
+    users = db.beer_review.aggregate([{'$unwind': "$reviews"}, {'$group': {'_id': "$reviews.user_id"}}])
     users = [u['_id'] for u in users['result']]
     users.sort()
 
     max_idx = users.index(26981)
     users = users[max_idx:]
 
-    print 'Length', len(users)
+    print
+    'Length', len(users)
 
     pool = ThreadPool(8)
 
     for chunk in chunks(users, 32):
-        print chunk[0]
+        print
+        chunk[0]
 
         results = (pool.map(get_user_data, chunk))
         db.user.insert(results)
